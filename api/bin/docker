@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+ROOT_DIR="$(dirname "$0")/.."
+
+function dcompose() {
+	if [ -f "$ROOT_DIR/docker-compose.local.yml" ]; then
+		docker-compose -f "$ROOT_DIR/docker-compose.yml" -f "$ROOT_DIR/docker-compose.local.yml" "${@}"
+	else
+		docker-compose -f "$ROOT_DIR/docker-compose.yml" "${@}"
+	fi;
+}
+
+case "$1" in
+	"start")
+		dcompose stop "${@:2}"
+		dcompose up -d --build "${@:2}"
+
+		echo -e "\nServer is running at http://localhost:8001/"
+		;;
+	"start-fg")
+		dcompose stop "${@:2}"
+		dcompose up --build "${@:2}"
+
+		echo -e "\nServer is running at http://localhost:8001/"
+		;;
+	"update-schema")
+		dcompose exec php bin/console doctrine:schema:update --force
+		;;
+	"stop")
+		dcompose stop "${@:2}"
+		;;
+	"exec")
+		dcompose exec "${@:2}"
+		;;
+	"logs")
+		dcompose logs -f "${@:2}"
+		;;
+	"console")
+		dcompose exec php bin/console "${@:2}"
+		;;
+	*)
+		echo "Command '$1' not found, possible commands: start, start-fg, update-schema, stop, exec, logs, console"
+		exit 1
+		;;
+esac

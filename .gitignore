@@ -1,3 +1,9 @@
+.idea
 /.env
 /docker-compose.override.yaml
 /docker-compose.override.yml
+certs
+.data
+api/public/media
+vendor
+api/src/Migrations
